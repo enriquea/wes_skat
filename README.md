@@ -1,8 +1,3 @@
----
-output:
-  html_document: default
-  pdf_document: default
----
 # wes_skat
 
 ### Nextflow workflow to run the SNP-set Kernel Association Test (SKAT) on whole-exome data (WES)
@@ -63,9 +58,10 @@ Results from SKAT test wrote to .../6d/merged_skat_results.csv
 
 #### Results
 
-Example output SKAT variant stats [here]().
+Example output SKAT gene stats [here](https://github.com/enriquea/wes_skat/blob/master/data/skat.gene.results.tsv).
 
-Example output SKAT gene stats [here]().
+Example output SKAT variant stats [here](https://github.com/enriquea/wes_skat/blob/master/data/skat.variant.results.tsv).
+
 
 
 #### References 
