@@ -10,7 +10,7 @@ params.snp_file  = "$PWD/testdata/plink_data/variants_ids_v2.tsv"
 snp_file_ch = channel.fromPath(file(params.snp_file))
 
 // Set input plink directory
-params.plink_input_dir = "$PWD/testdata/plink_data/lof_hc"
+params.plink_input_file = "$PWD/testdata/plink_data/lof_hc"
 
 // Set number of groups to be generated
 params.n_sets = 10
@@ -50,11 +50,11 @@ process runSKAT {
     script:
       if( params.run_variants )
         """
-        skat_pipeline.R -i ${params.plink_input_dir} -s ${sid} --run_variant
+        skat_pipeline.R -i ${params.plink_input_file} -s ${sid} --run_variant
         """
       else
         """
-        skat_pipeline.R -i ${params.plink_input_dir} -s ${sid}
+        skat_pipeline.R -i ${params.plink_input_file} -s ${sid}
         """
 }
 
@@ -72,7 +72,7 @@ workflow {
     
     // 3. combine results and write to disk
     results = skat_ch
-              .collectFile(name: 'merged_skat_results.csv', skip: 1, keepHeader: true)
+              .collectFile(name: 'merged_skat_results.tsv', skip: 1, keepHeader: true)
               .subscribe { println( "Results from SKAT test wrote to ${it}.") }
 
 }
