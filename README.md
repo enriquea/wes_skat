@@ -15,7 +15,7 @@ Nextflow installation:
 
 See more info about Nexflow [here](https://www.nextflow.io).
 
-R-dependesnces:
+R-dependences:
 
 `R >= 3.5.2, R-package ‘SKAT’ v2.2.2, R-package ‘optparse’ v1.6.6`
 
