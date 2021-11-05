@@ -10,6 +10,8 @@ option_list = list(
               help="Path to bim, fam and bed PLINK-like format files", metavar="character"),
   make_option(c("-s", "--sid_file"), type="character", default=NULL, 
               help="Path to gene/variant set id file (two-columns, no header)", metavar="character"),
+  make_option(c("--covariates_file"), type="character", default=NULL, 
+              help="Path to sample covariates file (tab-separated, first column with sample ids)", metavar="character"),
   # make_option(c("-o", "--output_file"), type="character", default=NULL, 
   #            help="Path to output file with SKAT test results", metavar="character"),
   make_option(c("--run_variant"), type="logical", default=FALSE, action = 'store_true', 
@@ -19,17 +21,31 @@ option_list = list(
 opt_parser = OptionParser(option_list=option_list)
 opt = parse_args(opt_parser)
 
-# check args
-if (is.null(opt$path_plink)){
-   print_help(opt_parser)
-  stop("Path with PLINK files must be specified.")
-}
-
 input_dir = opt$path_plink
 setid_file = opt$sid_file
+covs_file = opt$covariates_file
 
 # input_dir = "./testdata/plink_data/lof_hc"
-# setid_file = "./chunks/set_1.tsv"
+# setid_file = "./testdata/plink_data/variants_ids_v2.tsv"
+# covs_file = "./testdata/plink_data/covs.tsv"
+
+# check dir with plink file paths
+if (is.null(input_dir)){
+   print_help(opt_parser)
+  stop("The path to directory with PLINK files must be specified...")
+}
+
+# check covs file
+if (is.null(covs_file)){
+  # print_help(opt_parser)
+  warning("Path to covariates file not specified. Running SKAT without covariates")
+}
+
+parse_covs_file <- function(covs_file){
+   covs <- read.delim(covs_file,
+                      stringsAsFactors = F)
+   return(covs)
+}
 
 
 #' get_phe_from_fam
@@ -42,15 +58,14 @@ setid_file = opt$sid_file
 #' @export
 #'
 #' @examples
-get_phe_from_fam <- function(fam_file){
+recode_phe_from_fam <- function(fam_file){
   # recode (PLINK) binary phenotype 
   fam <- read.delim(fam_file, 
                     header = F, 
                     stringsAsFactors = F)
   
-  phe = fam$V6
-  phe = ifelse(phe==2, 1, 0)
-  return(phe)
+  fam$V6 <- ifelse(fam$V6==2, 1, 0)
+  return(fam)
 }
 
 
@@ -173,9 +188,27 @@ Generate_SSD_SetID(File.Bed=file_bed,
 
 SSD.INFO <- Open_SSD(file_ssd, file_info)
 
-# build NULL model
-phe = get_phe_from_fam(file_fam)
-obj <- SKAT_Null_Model(phe ~ 1, out_type="D") # without covariantes
+
+## building NULL model
+fam = recode_phe_from_fam(file_fam)
+
+# build NULL model with covs (if a covs file exists)
+if(!is.null(covs_file)){
+  covs <- parse_covs_file(covs_file = covs_file)
+  fam_covs <- merge.data.frame(fam,
+                               covs,
+                               by.x = 'V2',
+                               by.y = 's',
+                               all.x = T)
+  
+   print(head(fam_covs))
+
+  obj <- SKAT_Null_Model(fam_covs$V6 ~ 1 + fam_covs$PC1 + fam_covs$PC2 + fam_covs$PC3 + fam_covs$PC4 + fam_covs$PC5,
+                         out_type="D") # without covariantes
+} else {
+  obj <- SKAT_Null_Model(fam$V6 ~ 1, out_type="D") # without covariantes
+}
+
 
 # Run Skat test either per genes or variants
 if(!opt$run_variant){

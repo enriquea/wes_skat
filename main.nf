@@ -12,6 +12,9 @@ snp_file_ch = channel.fromPath(file(params.snp_file))
 // Set input plink directory
 params.plink_input_file = "$PWD/testdata/plink_data/lof_hc"
 
+// Set input sample covariates file
+params.covs_file = "$PWD/testdata/plink_data/covs.tsv"
+
 // Set number of groups to be generated
 params.n_sets = 10
 
@@ -50,11 +53,11 @@ process runSKAT {
     script:
       if( params.run_variants )
         """
-        skat_pipeline.R -i ${params.plink_input_file} -s ${sid} --run_variant
+        skat_pipeline.R -i ${params.plink_input_file} -s ${sid} --covariates_file ${params.covs_file} --run_variant
         """
       else
         """
-        skat_pipeline.R -i ${params.plink_input_file} -s ${sid}
+        skat_pipeline.R -i ${params.plink_input_file} -s ${sid} --covariates_file ${params.covs_file}
         """
 }
 
