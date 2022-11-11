@@ -1,4 +1,7 @@
-# wes_skat
+# wes_skat (Deprecated!!)
+
+==> **Efficient solution to run SKAT, SKAT-O and Burden test are available on [SAIGE-GENE+](https://doi.org/10.1038/s41588-022-01178-w)** <==
+
 
 ### Nextflow workflow to run the SNP-set Kernel Association Test (SKAT) on whole-exome data (WES)
 
